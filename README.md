@@ -19,9 +19,7 @@ An image processing system that will automatically detect and quantify mangrove 
 |---|---|
 | Caluza, Nash Francis M. | Researcher / Developer |
 | Boado, Reymark O. | Researcher / Developer |
-| Milana, Elaiza Praise Y. | Researcher / Developer |
 | Vejano, Lyka B. | Researcher / Developer |
-| Mendoza, Fernan H., DIT | Adviser |
 
 **Bachelor of Science in Computer Science**
 Don Mariano Marcos Memorial State University — South La Union Campus
