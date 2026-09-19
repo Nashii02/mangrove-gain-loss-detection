@@ -11,4 +11,4 @@ This folder contains the documentation files for the project:
 3. [Data Acquisition Protocol](03_Data_Acquisition_Protocol.md)
 4. [Labeling Guidelines](04_Labeling_Guidelines.md)
 5. [User Manual](05_User_Manual.md)
-6. Defense Presentation
+6. [Defense Presentation](06_Defense_Presentation.pptx)
