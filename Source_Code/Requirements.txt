@@ -1,0 +1,8 @@
+flask>=3.0
+numpy
+rasterio
+geopandas
+tensorflow
+scikit-learn
+reportlab
+matplotlib
