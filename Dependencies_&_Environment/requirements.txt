@@ -1,1 +1,15 @@
+# ── Web application (frontend + API) ─────────────────────
+flask>=3.0
+reportlab>=4.0
 
+# ── Data processing & machine learning ───────────────────
+numpy>=1.26
+rasterio>=1.3
+geopandas>=0.14
+tensorflow>=2.15
+scikit-learn>=1.4
+matplotlib>=3.8
+
+# ── Data acquisition (training environment only) ─────────
+earthengine-api>=0.1.400
+geemap>=0.30
