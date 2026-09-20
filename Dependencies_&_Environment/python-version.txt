@@ -1,0 +1,3 @@
+python-verion.txt
+
+3.10
