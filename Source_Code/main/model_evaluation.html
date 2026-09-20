@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+{% block title %}Model Evaluation · Mangrove Monitor{% endblock %}
+{% block content %}
+
+<h4 class="fw-bold mb-1">Model Evaluation</h4>
+<p class="text-secondary">Validation-set performance of the U-Net segmentation model —
+pixel-level metrics, mangrove class treated as the positive class.</p>
+
+<!-- Metric cards -->
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm bg-mint h-100"><div class="card-body">
+      <div class="kicker">F1-score</div>
+      <div class="fs-3 fw-bold text-forest" id="m-f1">—</div>
+      <div class="small text-secondary font-monospace">2TP / (2TP + FP + FN)</div>
+    </div></div>
+  </div>
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm bg-mint h-100"><div class="card-body">
+      <div class="kicker">IoU</div>
+      <div class="fs-3 fw-bold text-forest" id="m-iou">—</div>
+      <div class="small text-secondary font-monospace">TP / (TP + FP + FN)</div>
+    </div></div>
+  </div>
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm bg-mint h-100"><div class="card-body">
+      <div class="kicker">mAP <span class="text-secondary">(AP, mangrove)</span></div>
+      <div class="fs-3 fw-bold text-forest" id="m-map">—</div>
+      <div class="small text-secondary">area under the precision–recall curve</div>
+    </div></div>
+  </div>
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm h-100"><div class="card-body">
+      <div class="kicker">Operating Threshold <span class="text-secondary">(locked)</span></div>
+      <div class="fs-3 fw-bold" id="m-th">—</div>
+      <div class="small text-secondary">maximizes validation IoU</div>
+    </div></div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <!-- PR curve -->
+  <div class="col-lg-6">
+    <div class="card border-0 shadow-sm h-100"><div class="card-body">
+      <h6 class="fw-bold"><i class="bi bi-graph-up me-1"></i>Precision–Recall Curve</h6>
+      <p class="small text-secondary mb-2">
+        Classification threshold swept from 0.05 to 0.95 in increments of 0.05;
+        each threshold yields one precision–recall pair. With a single positive
+        class (mangrove), mAP equals the AP of the mangrove class.
+      </p>
+      <canvas id="ch-pr" height="260"></canvas>
+    </div></div>
+  </div>
+
+  <!-- Confusion matrix + config -->
+  <div class="col-lg-6 d-flex flex-column gap-3">
+    <div class="card border-0 shadow-sm"><div class="card-body">
+      <h6 class="fw-bold"><i class="bi bi-grid-3x3 me-1"></i>Confusion Matrix @ Locked Threshold</h6>
+      <table class="table table-bordered text-center align-middle mb-0">
+        <thead class="table-light">
+          <tr><th></th><th>Predicted Mangrove</th><th>Predicted Non-mangrove</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th class="table-light">Reference Mangrove</th>
+            <td class="fw-bold text-success fs-5" id="cm-tp">—</td>
+            <td class="text-danger" id="cm-fn">—</td>
+          </tr>
+          <tr>
+            <th class="table-light">Reference Non-mangrove</th>
+            <td class="text-warning" id="cm-fp">—</td>
+            <td class="text-secondary" id="cm-tn">—</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="small text-secondary mt-2" id="cm-note">Pixel counts across all validation patches.</div>
+    </div></div>
+
+    <div class="card border-0 shadow-sm"><div class="card-body">
+      <h6 class="fw-bold"><i class="bi bi-sliders me-1"></i>Training Configuration</h6>
+      <ul class="list-group list-group-flush small" id="cfg-list">
+        <li class="list-group-item text-secondary">loading…</li>
+      </ul>
+    </div></div>
+
+    <div class="callout-soft">
+      <i class="bi bi-info-circle me-1"></i>
+      <strong>Baseline protocol:</strong> the first trained model serves as the baseline;
+      subsequent iterations are assessed against it — a study-specific evaluation method
+      rather than a universal acceptance threshold. Test results are reported separately
+      and are not used to further modify the model, parameters, preprocessing, or threshold.
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(async () => {
+  const nf = (x, d=3) => (typeof x === 'number' ? x.toFixed(d) : '—');
+  const loc = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+
+  try {
+    const m = await fetchJSON('/api/metrics');
+
+    loc('m-f1', nf(m.f1));
+    loc('m-iou', nf(m.iou));
+    loc('m-map', nf(m.mAP));
+    loc('m-th', nf(m.threshold, 2));
+
+    if (m.confusion) {
+      loc('cm-tp', m.confusion.TP?.toLocaleString() ?? '—');
+      loc('cm-fn', m.confusion.FN?.toLocaleString() ?? '—');
+      loc('cm-fp', m.confusion.FP?.toLocaleString() ?? '—');
+      loc('cm-tn', m.confusion.TN?.toLocaleString() ?? '—');
+    }
+
+    const cfg = document.getElementById('cfg-list');
+    cfg.innerHTML = '';
+    const icons = { optimizer:'gear', loss:'bullseye', input:'layers', output:'box-arrow-up-right' };
+    for (const [k, v] of Object.entries(m.config || {})) {
+      cfg.insertAdjacentHTML('beforeend', `
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span><i class="bi bi-${icons[k] ?? 'dot'} me-2 text-secondary"></i>${k}</span>
+          <span class="text-secondary text-end">${v}</span>
+        </li>`);
+    }
+
+    if (m.pr_curve?.recall?.length) {
+      new Chart(document.getElementById('ch-pr'), {
+        type: 'line',
+        data: {
+          labels: m.pr_curve.recall,
+          datasets: [{
+            label: 'Precision–Recall (mangrove class)',
+            data: m.pr_curve.precision,
+            borderColor: '#2d6a4f',
+            backgroundColor: 'rgba(45,106,79,.12)',
+            fill: true, tension: .3, pointRadius: 3
+          }]
+        },
+        options: {
+          plugins: { legend: { display:false } },
+          scales: {
+            x: { title:{ display:true, text:'Recall' }, min:0, max:1 },
+            y: { title:{ display:true, text:'Precision' }, min:0, max:1.02 }
+          }
+        }
+      });
+    }
+  } catch (e) {
+    ['m-f1','m-iou','m-map','m-th'].forEach(id => loc(id, 'n/a'));
+    showErr(document.getElementById('cfg-list'), e);
+  }
+})();
+</script>
+{% endblock %}
