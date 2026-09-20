@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · Mangrove Monitor{% endblock %}
+{% block content %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-end mb-1">
+  <h4 class="fw-bold mb-0">System Dashboard</h4>
+  <span class="badge text-bg-light border">Prototype v1.0 · demo data</span>
+</div>
+<p class="text-secondary">Automated detection and quantification of mangrove gain and loss
+using Sentinel-2 imagery and U-Net deep learning segmentation.</p>
+
+<!-- Key facts -->
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card h-100 border-0 shadow-sm"><div class="card-body">
+      <div class="kicker">Study Area</div>
+      <div class="fw-semibold">Barangay Dulao shoreline</div>
+      <div class="text-secondary small">Aringay, La Union · coastal intertidal zone</div>
+    </div></div>
+  </div>
+  <div class="col-md-3">
+    <div class="card h-100 border-0 shadow-sm"><div class="card-body">
+      <div class="kicker">Observation Period</div>
+      <div class="fw-semibold">2019 – 2024</div>
+      <div class="text-secondary small">Sentinel-2 · same-season scenes · 10 m grid</div>
+    </div></div>
+  </div>
+  <div class="col-md-3">
+    <div class="card h-100 border-0 shadow-sm"><div class="card-body">
+      <div class="kicker">Segmentation Model</div>
+      <div class="fw-semibold">U-Net · 5-band input</div>
+      <div class="text-secondary small">B3, B4, B8, B11, NDVI · 256×256 patches</div>
+    </div></div>
+  </div>
+  <div class="col-md-3">
+    <div class="card h-100 border-0 shadow-sm bg-mint"><div class="card-body">
+      <div class="kicker">Mapped Cover — 2024</div>
+      <div class="fs-4 fw-bold text-forest" id="dash-area"><span class="placeholder-glow"><span class="placeholder col-6"></span></span></div>
+      <div class="text-secondary small" id="dash-note">loading…</div>
+    </div></div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <!-- Map preview -->
+  <div class="col-lg-8">
+    <div class="card border-0 shadow-sm h-100"><div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="fw-bold mb-0"><i class="bi bi-map me-1"></i>Study Area Preview</h6>
+        <span class="badge text-bg-light border">Leaflet · OpenStreetMap</span>
+      </div>
+      <div id="map-preview" class="rounded" style="height:360px"></div>
+      <div class="small text-secondary mt-2">
+        The study area boundary follows the shoreline of Barangay Dulao, where mangrove
+        stands occur within the intertidal zone (verified through NDVI analysis of
+        Sentinel-2 imagery).
+      </div>
+    </div></div>
+  </div>
+
+  <!-- Workflow status -->
+  <div class="col-lg-4">
+    <div class="card border-0 shadow-sm h-100"><div class="card-body">
+      <h6 class="fw-bold"><i class="bi bi-list-check me-1"></i>Pipeline Status</h6>
+      <ul class="list-group list-group-flush">
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span>Web prototype (frontend + API)</span>
+          <span class="badge text-bg-success">Complete</span></li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span>Pipeline scripts</span>
+          <span class="badge text-bg-warning">Under revision</span></li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span>Dataset acquisition (Sentinel-2, 2019–2024)</span>
+          <span class="badge text-bg-secondary">Planned</span></li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span>Reference labeling + MENRO validation</span>
+          <span class="badge text-bg-secondary">Planned</span></li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span>U-Net training &amp; evaluation</span>
+          <span class="badge text-bg-secondary">Planned</span></li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span>Multi-temporal change detection</span>
+          <span class="badge text-bg-secondary">Planned</span></li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span>Integration of real outputs</span>
+          <span class="badge text-bg-secondary">Planned</span></li>
+      </ul>
+      <div class="small text-secondary mt-3">
+        Outputs are prepared for the <strong>Aringay MENRO</strong> as the primary
+        end user. The prototype focuses on core functionality and output
+        interpretability, not operationalization.
+      </div>
+    </div></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(async () => {
+  // Latest cover card (demo data until integration)
+  const area = document.getElementById('dash-area');
+  const note = document.getElementById('dash-note');
+  try {
+    const d = await fetchJSON('/api/annual/2024');
+    area.textContent = fmt(d.area_ha) + ' ha';
+    note.innerHTML   = 'mapped mangrove cover <span class="badge text-bg-warning">demo</span>';
+  } catch (e) { showErr(note, e); }
+
+  // Map preview with study-area rectangle
+  const map = L.map('map-preview', { scrollWheelZoom:false }).setView([16.375, 120.335], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    { maxZoom: 19, attribution:'&copy; OpenStreetMap contributors' }).addTo(map);
+  L.control.scale({ imperial:false }).addTo(map);
+  L.rectangle([[16.31, 120.318], [16.388, 120.344]],
+    { color:'#2d6a4f', weight:2, fillOpacity:0.08 })
+    .addTo(map)
+    .bindPopup('<strong>Brgy. Dulao</strong><br>Study area boundary<br><small>Brgy. Dulao, Aringay, La Union</small>');
+})();
+</script>
+{% endblock %}
