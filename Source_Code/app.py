@@ -14,6 +14,12 @@ import numpy as np
 
 app = Flask(__name__)
 
+DEMO_MODE = True   # flip to False after real outputs are integrated
+
+@app.context_processor
+def inject_globals():
+    return {"DEMO_MODE": DEMO_MODE}
+
 YEARS = [2019, 2020, 2021, 2022, 2023, 2024]
 STUDY_AREA = {"name": "Barangay Dulao, Aringay, La Union",
               "bbox": [120.355, 16.305, 120.375, 16.325]}   # [W, S, E, N]
