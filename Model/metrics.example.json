@@ -1,0 +1,20 @@
+{
+  "_notice": "EXAMPLE ONLY — illustrates the metrics.json schema. Not loaded by the API: /api/metrics serves built-in demo data until SourceCode/preprocessing/evaluate.py writes the real Model/metrics.json.",
+  "status": "example",
+  "f1": 0.874,
+  "iou": 0.776,
+  "mAP": 0.921,
+  "threshold": 0.55,
+  "split": "80/20",
+  "config": {
+    "optimizer": "Adam (lr=0.001)",
+    "loss": "binary cross-entropy",
+    "input": "256×256×5 (B3, B4, B8, B11, NDVI)",
+    "output": "sigmoid probability map"
+  },
+  "pr_curve": {
+    "recall": [0.0, 0.32, 0.58, 0.74, 0.85, 0.92, 0.96, 0.98, 1.0],
+    "precision": [1.0, 0.98, 0.96, 0.93, 0.9, 0.86, 0.8, 0.71, 0.55]
+  },
+  "confusion": { "TP": 41820, "FP": 6024, "FN": 6036, "TN": 110120 }
+}
