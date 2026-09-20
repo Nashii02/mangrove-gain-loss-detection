@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Change Detection · Mangrove Monitor{% endblock %}
+{% block content %}
+
+<h4 class="fw-bold mb-1">Change Detection — Mangrove Gain &amp; Loss</h4>
+<p class="text-secondary">Consecutive-year pixel-by-pixel comparison of annual segmentation maps
+(transition categories per thesis Table 1)</p>
+
+<!-- Interval picker -->
+<div class="card border-0 shadow-sm mb-3"><div class="card-body py-3">
+  <div class="row g-2 align-items-end">
+    <div class="col-auto">
+      <label for="sel-y1" class="form-label small text-secondary mb-1">Earlier year</label>
+      <select id="sel-y1" class="form-select">
+        {% for y in years[:-1] %}
+          <option value="{{ y }}" {% if loop.last %}selected{% endif %}>{{ y }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-auto pb-1"><i class="bi bi-arrow-right fs-4 text-secondary"></i></div>
+    <div class="col-auto">
+      <label for="sel-y2" class="form-label small text-secondary mb-1">Later year</label>
+      <select id="sel-y2" class="form-select">
+        {% for y in years[1:] %}
+          <option value="{{ y }}" {% if loop.last %}selected{% endif %}>{{ y }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-auto">
+      <button id="btn-load" class="btn btn-forest">
+        <i class="bi bi-play-fill"></i> Compare
+      </button>
+    </div>
+    <div class="col text-secondary small ps-3">
+      Only consecutive-year pairs are comparable (2019–2020 … 2023–2024).
+    </div>
+  </div>
+</div></div>
+
+<!-- Summary cards -->
+<div class="row g-3 mb-3">
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm bg-gain h-100"><div class="card-body">
+      <div class="kicker">Mapped Mangrove Gain</div>
+      <div class="fs-3 fw-bold text-forest" id="card-gain">—</div>
+      <div class="small text-secondary">non-mangrove → mangrove</div>
+    </div></div>
+  </div>
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm bg-loss h-100"><div class="card-body">
+      <div class="kicker">Mapped Mangrove Loss</div>
+      <div class="fs-3 fw-bold text-loss" id="card-loss">—</div>
+      <div class="small text-secondary">mangrove → non-mangrove</div>
+    </div></div>
+  </div>
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm h-100"><div class="card-body">
+      <div class="kicker">Stable Mangrove</div>
+      <div class="fs-3 fw-bold" id="card-stable">—</div>
+      <div class="small text-secondary">mangrove in both years</div>
+    </div></div>
+  </div>
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm h-100"><div class="card-body">
+      <div class="kicker">Net Change</div>
+      <div class="fs-3 fw-bold" id="card-net">—</div>
+      <div class="small text-secondary">gain − loss (hectares)</div>
+    </div></div>
+  </div>
+</div>
+
+<!-- Map -->
+<div class="card border-0 shadow-sm"><div class="card-body p-2">
+  <div id="map-change" style="height:520px"></div>
+  <div class="d-flex flex-wrap gap-4 px-3 pt-2 pb-1 small align-items-center">
+    <span><span class="swatch" style="background:#52b788"></span> Mapped gain</span>
+    <span><span class="swatch" style="background:#ba181b"></span> Mapped loss</span>
+    <span class="text-secondary">
+      <i class="bi bi-shield-exclamation me-1"></i>
+      Detected transitions are probable land-cover changes, not confirmed ecological causes.
+    </span>
+  </div>
+</div></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/map_change.js') }}"></script>
+{% endblock %}
