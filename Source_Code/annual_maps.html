@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Annual Maps · Mangrove Monitor{% endblock %}
+{% block content %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+  <div>
+    <h4 class="fw-bold mb-0">Annual Mangrove Maps</h4>
+    <p class="text-secondary mb-0">Binary mangrove / non-mangrove segmentation per observation year</p>
+  </div>
+  <div class="btn-group shadow-sm" role="group" aria-label="Select year" id="year-buttons">
+    {% for y in years %}
+      <button type="button"
+              class="btn btn-{{ 'forest' if y == 2024 else 'outline-forest' }} year-btn"
+              data-year="{{ y }}">{{ y }}</button>
+    {% endfor %}
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-9">
+    <div class="card border-0 shadow-sm"><div class="card-body p-2">
+      <div id="map-annual" style="height:540px"></div>
+    </div></div>
+  </div>
+
+  <div class="col-lg-3 d-flex flex-column gap-3">
+    <div class="card border-0 shadow-sm"><div class="card-body">
+      <div class="kicker">Selected Year</div>
+      <div class="fs-2 fw-bold text-forest" id="sel-year">2024</div>
+      <hr class="my-2">
+      <div class="kicker">Mapped Mangrove Cover</div>
+      <div class="fs-4 fw-semibold" id="sel-area"><span class="placeholder-glow"><span class="placeholder col-8"></span></span></div>
+      <div class="text-secondary small" id="sel-px">&nbsp;</div>
+    </div></div>
+
+    <div class="card border-0 shadow-sm"><div class="card-body">
+      <div class="kicker mb-2">Legend</div>
+      <div class="legend-item"><span class="swatch" style="background:#2d6a4f"></span> Mangrove</div>
+      <div class="legend-item"><span class="swatch" style="background:#e9ecef; border:1px solid #ced4da"></span> Non-mangrove</div>
+      <hr>
+      <div class="small text-secondary">
+        Segmentation will be produced by the <strong>locked</strong> U-Net model —
+        same configuration, five-band input, preprocessing, patch size, and
+        classification threshold across all years — so year-to-year differences
+        reflect land cover, not methodology.
+      </div>
+    </div></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/map_annual.js') }}"></script>
+{% endblock %}
