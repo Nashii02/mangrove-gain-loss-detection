@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Report · Mangrove Monitor{% endblock %}
+{% block content %}
+
+<h4 class="fw-bold mb-1">PDF Report Generator</h4>
+<p class="text-secondary">Downloadable summary of mapped mangrove cover and changes —
+prepared for presentation to the Aringay MENRO.</p>
+
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="card border-0 shadow-sm"><div class="card-body">
+      <h6 class="fw-bold"><i class="bi bi-file-earmark-check me-1"></i>Report Contents</h6>
+      <div class="form-check py-1">
+        <input class="form-check-input" type="checkbox" checked disabled id="c1">
+        <label class="form-check-label" for="c1">Annual mangrove cover (ha), 2019–2024</label>
+      </div>
+      <div class="form-check py-1">
+        <input class="form-check-input" type="checkbox" checked disabled id="c2">
+        <label class="form-check-label" for="c2">Mapped gain / loss per consecutive interval</label>
+      </div>
+      <div class="form-check py-1">
+        <input class="form-check-input" type="checkbox" checked disabled id="c3">
+        <label class="form-check-label" for="c3">Overall 2019–2024 comparison</label>
+      </div>
+      <div class="form-check py-1">
+        <input class="form-check-input" type="checkbox" checked disabled id="c4">
+        <label class="form-check-label" for="c4">Model evaluation summary (F1, IoU, mAP)</label>
+      </div>
+      <hr>
+      <button id="btn-pdf" class="btn btn-forest w-100">
+        <i class="bi bi-file-earmark-pdf me-1"></i> Generate &amp; Download PDF
+      </button>
+      <div id="pdf-status" class="small text-secondary mt-2" aria-live="polite"></div>
+    </div></div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="card border-0 shadow-sm bg-mint h-100"><div class="card-body">
+      <h6 class="fw-bold"><i class="bi bi-shield-check me-1"></i>Interpretation Notes</h6>
+      <ul class="small mb-0 ps-3">
+        <li class="mb-2">This report is a prototype <strong>interpretability output</strong> —
+            it presents mapped results, not operational records.</li>
+        <li class="mb-2">Mapped transitions are probable land-cover changes; actual causes
+            (restoration, erosion, storm damage, etc.) are discussed only when supported
+            by local records or additional evidence.</li>
+        <li>Validation results are estimates for the study's reference-data conditions,
+            as the study does not create a truly independent test dataset.</li>
+      </ul>
+    </div></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('btn-pdf').addEventListener('click', async () => {
+  const btn = document.getElementById('btn-pdf');
+  const s   = document.getElementById('pdf-status');
+  btn.disabled = true;
+  s.innerHTML  = '<span class="spinner-border spinner-border-sm me-1"></span>Generating…';
+  try {
+    const r = await fetch('/api/report', { method:'POST' });
+    if (!r.ok) throw new Error('Report generation failed (' + r.status + ')');
+    const blob = await r.blob();
+    const a = Object.assign(document.createElement('a'),
+      { href: URL.createObjectURL(blob), download: 'mangrove_report.pdf' });
+    a.click();
+    URL.revokeObjectURL(a.href);
+    s.innerHTML = '<span class="text-success"><i class="bi bi-check-circle me-1"></i>Downloaded mangrove_report.pdf</span>';
+  } catch (e) {
+    s.innerHTML = `<span class="text-danger"><i class="bi bi-exclamation-triangle me-1"></i>${e.message}</span>`;
+  } finally {
+    btn.disabled = false;
+  }
+});
+</script>
+{% endblock %}
