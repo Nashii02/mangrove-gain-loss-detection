@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Mangrove Monitor · Brgy. Dulao, Aringay{% endblock %}</title>
+
+  <!-- CDNs: Bootstrap 5, Icons, Leaflet -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+  <!-- Custom styles -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <!-- Top Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-forest sticky-top shadow-sm py-2">
+    <div class="container-fluid px-3 px-md-4">
+      <a class="navbar-brand fw-bold d-flex align-items-center" href="/">
+        <i class="bi bi-tree-fill text-mint me-2 fs-5"></i>
+        <span>Mangrove Monitor</span>
+        <span class="badge bg-mint text-forest ms-2 fs-6 fw-normal d-none d-sm-inline">Aringay MENRO</span>
+      </a>
+
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent" aria-controls="navContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navContent">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-lg-1">
+          <li class="nav-item">
+            <a class="nav-link px-3 {{ 'active fw-bold' if request.path == '/' else '' }}" href="/">
+              <i class="bi bi-speedometer2 me-1"></i> Dashboard
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link px-3 {{ 'active fw-bold' if request.path == '/maps' else '' }}" href="/maps">
+              <i class="bi bi-map me-1"></i> Annual Maps
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link px-3 {{ 'active fw-bold' if request.path == '/change' else '' }}" href="/change">
+              <i class="bi bi-arrow-left-right me-1"></i> Change Detection
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link px-3 {{ 'active fw-bold' if request.path == '/statistics' else '' }}" href="/statistics">
+              <i class="bi bi-bar-chart-line me-1"></i> Statistics
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link px-3 {{ 'active fw-bold' if request.path == '/history' else '' }}" href="/history">
+              <i class="bi bi-clock-history me-1"></i> History
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link px-3 {{ 'active fw-bold' if request.path == '/report' else '' }}" href="/report">
+              <i class="bi bi-file-earmark-pdf me-1"></i> Reports
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link px-3 {{ 'active fw-bold' if request.path == '/about' else '' }}" href="/about">
+              <i class="bi bi-question-circle me-1"></i> About &amp; FAQ
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  {% if DEMO_MODE %}
+  <div class="demo-banner">
+    <i class="bi bi-info-circle me-1"></i>
+    <strong>Demo Mode Active:</strong> Displaying prototype satellite survey data for Barangay Dulao, Aringay, La Union.
+  </div>
+  {% endif %}
+
+  <!-- Main content wrapper -->
+  <main class="container-fluid px-3 px-md-4 py-4">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Floating Quick Help Button -->
+  <button type="button" class="btn btn-forest rounded-circle shadow-lg position-fixed bottom-0 end-0 m-4 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px; z-index: 1050;" data-bs-toggle="modal" data-bs-target="#helpModal" aria-label="Open System Help and FAQ" title="Quick Help & FAQ">
+    <i class="bi bi-question-lg fs-4"></i>
+  </button>
+
+  <!-- Quick Help & FAQ Modal -->
+  <div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header bg-forest text-white py-3">
+          <h5 class="modal-title fw-bold" id="helpModalLabel"><i class="bi bi-info-circle me-2"></i>Quick Help &amp; Guidance</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <h6 class="fw-bold text-forest mb-1">What does this system do?</h6>
+          <p class="text-secondary small mb-3">
+            This tool monitors coastal mangrove forests along Barangay Dulao, Aringay, La Union from 2019 to 2024 using satellite photography. It helps the Aringay MENRO track forest recovery and prioritize field inspections.
+          </p>
+
+          <h6 class="fw-bold text-forest mb-2">Understanding map categories:</h6>
+          <div class="row g-2 mb-3">
+            <div class="col-6 col-md-3">
+              <div class="p-2 border rounded small bg-light h-100">
+                <span class="swatch me-1" style="background:#2d6a4f; border:1px solid #0f2318;"></span>
+                <strong>● Stable Mangrove</strong><br/>
+                <span class="text-muted">Present in both years.</span>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="p-2 border rounded small bg-gain h-100">
+                <span class="swatch me-1" style="background:#52b788; border:2px solid #1b4332;"></span>
+                <strong class="text-forest">▲ Mapped Gain</strong><br/>
+                <span class="text-muted">Newly grown trees.</span>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="p-2 border rounded small bg-loss h-100">
+                <span class="swatch me-1" style="background:#ba181b; border:2px dashed #780016;"></span>
+                <strong class="text-loss">▼ Mapped Loss</strong><br/>
+                <span class="text-muted">Disappeared/removed.</span>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="p-2 border rounded small bg-light h-100">
+                <span class="swatch me-1" style="background:#e9ecef; border:1px solid #ced4da;"></span>
+                <strong>◻ Unchanged</strong><br/>
+                <span class="text-muted">Non-mangrove land.</span>
+              </div>
+            </div>
+          </div>
+
+          <h6 class="fw-bold text-forest mb-2">Common Questions:</h6>
+          <div class="small text-secondary mb-2">
+            <strong>• What should MENRO do if "Mapped Loss" is detected?</strong><br/>
+            Deploy barangay field officers to the flagged coordinates to inspect whether loss was caused by storm waves, erosion, cutting, or tidal shifts.
+          </div>
+          <div class="small text-secondary mb-2">
+            <strong>• How big is one hectare?</strong><br/>
+            1 hectare equals 10,000 square meters, or approximately 1.4 standard football fields.
+          </div>
+          <div class="small text-secondary">
+            <strong>• How do I download an official report?</strong><br/>
+            Visit the <strong>Reports</strong> tab to generate and download a formal municipal PDF report ready for signature.
+          </div>
+        </div>
+        <div class="modal-footer bg-light py-2">
+          <a href="/about" class="btn btn-outline-forest btn-sm">Open Full User Guide &amp; FAQ</a>
+          <button type="button" class="btn btn-forest btn-sm" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer with required disclaimer -->
+  <footer class="bg-white border-top py-3 mt-5">
+    <div class="container-fluid px-3 px-md-4 text-center text-secondary small">
+      <div>
+        Mangrove Gain and Loss Detection System · Barangay Dulao, Aringay, La Union
+      </div>
+      <div class="text-muted mt-1">
+        <strong>Disclaimer:</strong> All figures and maps are mapped estimates provided to support the Aringay Municipal Environment and Natural Resources Office (MENRO) in coastal management and field survey prioritization.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Core Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="{{ url_for('static', filename='js/common.js') }}"></script>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

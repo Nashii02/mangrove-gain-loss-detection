@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+{% block title %}About &amp; FAQ · Mangrove Monitor{% endblock %}
+{% block content %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-end mb-1">
+  <h4 class="fw-bold mb-0">About &amp; Frequently Asked Questions</h4>
+  <span class="badge text-bg-light border">User Guide · Aringay MENRO</span>
+</div>
+<p class="text-secondary">A plain-language guide on how satellite imagery monitors coastal mangrove forests in Barangay Dulao, Aringay, La Union.</p>
+
+<!-- 3 Overview Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="card h-100 border-0 shadow-sm">
+      <div class="card-body">
+        <div class="d-flex align-items-center mb-2">
+          <span class="badge bg-mint text-forest p-2 rounded-circle me-2"><i class="bi bi-shield-fill-check fs-5"></i></span>
+          <h6 class="fw-bold mb-0">Why We Monitor</h6>
+        </div>
+        <p class="text-secondary small mb-0">
+          Mangroves protect Barangay Dulao's shoreline from storm surges, prevent coastal erosion, and serve as vital nursery grounds for local marine life. Continuous monitoring protects these natural barriers.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card h-100 border-0 shadow-sm">
+      <div class="card-body">
+        <div class="d-flex align-items-center mb-2">
+          <span class="badge bg-mint text-forest p-2 rounded-circle me-2"><i class="bi bi-broadcast-pin fs-5"></i></span>
+          <h6 class="fw-bold mb-0">How the System Works</h6>
+        </div>
+        <p class="text-secondary small mb-0">
+          European Space Agency satellites photograph the coast every year. Our computer vision model examines these photos to automatically distinguish mangrove trees from open water and sandy beaches.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card h-100 border-0 shadow-sm">
+      <div class="card-body">
+        <div class="d-flex align-items-center mb-2">
+          <span class="badge bg-mint text-forest p-2 rounded-circle me-2"><i class="bi bi-compass-fill fs-5"></i></span>
+          <h6 class="fw-bold mb-0">How It Helps MENRO</h6>
+        </div>
+        <p class="text-secondary small mb-0">
+          Instead of costly foot patrols across the entire shoreline, officials can immediately pinpoint newly grown areas or loss hotspots to deploy field personnel where they are needed most.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Category Explanation Guide -->
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-header bg-white py-3">
+    <h6 class="fw-bold mb-0"><i class="bi bi-palette me-1"></i>Understanding the Four Map Categories</h6>
+  </div>
+  <div class="card-body p-3 p-md-4">
+    <div class="row g-3">
+      <div class="col-md-3">
+        <div class="p-3 rounded bg-light border h-100">
+          <div class="d-flex align-items-center mb-2">
+            <span class="swatch me-2" style="background:#2d6a4f; border:1px solid #0f2318;"></span>
+            <strong>● Stable Mangrove</strong>
+          </div>
+          <div class="small text-secondary">
+            Mangroves that were present, healthy, and green in both comparison years. These represent established, protected stands.
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="p-3 rounded bg-gain border h-100">
+          <div class="d-flex align-items-center mb-2">
+            <span class="swatch me-2" style="background:#52b788; border:2px solid #1b4332;"></span>
+            <strong class="text-forest">▲ Mapped Gain</strong>
+          </div>
+          <div class="small text-secondary">
+            Newly grown or naturally regenerated mangrove trees appearing where there were none in the earlier survey.
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="p-3 rounded bg-loss border h-100">
+          <div class="d-flex align-items-center mb-2">
+            <span class="swatch me-2" style="background:#ba181b; border:2px dashed #780016;"></span>
+            <strong class="text-loss">▼ Mapped Loss</strong>
+          </div>
+          <div class="small text-secondary">
+            Areas where mangrove canopy disappeared since the prior survey. Flags priority locations for ground investigation.
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="p-3 rounded bg-light border h-100">
+          <div class="d-flex align-items-center mb-2">
+            <span class="swatch me-2" style="background:#e9ecef; border:1px solid #ced4da;"></span>
+            <strong>◻ Unchanged</strong>
+          </div>
+          <div class="small text-secondary">
+            Open sea, mudflats, and inland ground that did not have mangrove trees in either observation year.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FAQ Accordion -->
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-header bg-white py-3">
+    <h6 class="fw-bold mb-0"><i class="bi bi-question-circle me-1"></i>Frequently Asked Questions (FAQ)</h6>
+  </div>
+  <div class="card-body p-3 p-md-4">
+    <div class="accordion" id="faqAccordion">
+
+      <div class="accordion-item border-0 border-bottom">
+        <h2 class="accordion-header" id="faqHeading1">
+          <button class="accordion-button collapsed fw-semibold text-forest" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse1" aria-expanded="false" aria-controls="faqCollapse1">
+            1. How does the computer tell mangroves apart from other coastal land?
+          </button>
+        </h2>
+        <div id="faqCollapse1" class="accordion-collapse collapse" aria-labelledby="faqHeading1" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-secondary small">
+            Our computer model studied satellite photos across different light wavelengths—including near-infrared light, which bounces strongly off lush green foliage. Because mangroves grow directly in coastal brackish waters, their unique green reflection pattern distinguishes them from dryland plants, sandbars, and open sea.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item border-0 border-bottom">
+        <h2 class="accordion-header" id="faqHeading2">
+          <button class="accordion-button collapsed fw-semibold text-forest" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse2" aria-expanded="false" aria-controls="faqCollapse2">
+            2. How big is one scan block or "pixel"?
+          </button>
+        </h2>
+        <div id="faqCollapse2" class="accordion-collapse collapse" aria-labelledby="faqHeading2" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-secondary small">
+            The satellite divides the coastline into a grid of 10-meter by 10-meter squares (100 square meters each, or 0.01 hectare). To picture this, one scan block is about the size of a standard tennis court. A single hectare equals 100 such blocks, or roughly 1.4 standard soccer/football fields.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item border-0 border-bottom">
+        <h2 class="accordion-header" id="faqHeading3">
+          <button class="accordion-button collapsed fw-semibold text-forest" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse3" aria-expanded="false" aria-controls="faqCollapse3">
+            3. Why does the system compare consecutive years (e.g., 2022 to 2023)?
+          </button>
+        </h2>
+        <div id="faqCollapse3" class="accordion-collapse collapse" aria-labelledby="faqHeading3" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-secondary small">
+            Comparing consecutive annual survey photos tracks clear year-to-year environmental trends. Comparing same-season images one year apart also minimizes variations caused by seasonal sea level changes, heavy storm periods, and tidal cycles.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item border-0 border-bottom">
+        <h2 class="accordion-header" id="faqHeading4">
+          <button class="accordion-button collapsed fw-semibold text-forest" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse4" aria-expanded="false" aria-controls="faqCollapse4">
+            4. Does "Mapped Loss" always mean illegal clearing or cutting?
+          </button>
+        </h2>
+        <div id="faqCollapse4" class="accordion-collapse collapse" aria-labelledby="faqHeading4" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-secondary small">
+            Not necessarily. Mapped loss indicates a drop in vegetative canopy detected from the satellite perspective. This can be caused by natural typhoon damage, shoreline sediment shifts, high tidal submergence during satellite capture, disease, or human clearing. On-site field inspection (ground-truthing) by MENRO staff is recommended to confirm the exact physical cause.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item border-0 border-bottom">
+        <h2 class="accordion-header" id="faqHeading5">
+          <button class="accordion-button collapsed fw-semibold text-forest" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse5" aria-expanded="false" aria-controls="faqCollapse5">
+            5. What is "Demo Mode"?
+          </button>
+        </h2>
+        <div id="faqCollapse5" class="accordion-collapse collapse" aria-labelledby="faqHeading5" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-secondary small">
+            Demo mode allows municipal officers to explore all features—including interactive maps, detection tools, statistics, and PDF reports—using pre-verified demonstration datasets. It ensures the system remains fully functional and accessible anytime for review and training.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item border-0">
+        <h2 class="accordion-header" id="faqHeading6">
+          <button class="accordion-button collapsed fw-semibold text-forest" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse6" aria-expanded="false" aria-controls="faqCollapse6">
+            6. How can our office use the generated PDF reports?
+          </button>
+        </h2>
+        <div id="faqCollapse6" class="accordion-collapse collapse" aria-labelledby="faqHeading6" data-bs-parent="#faqAccordion">
+          <div class="accordion-body text-secondary small">
+            The PDF reports are formatted formally with official municipal headers, plain-language summaries, transition tables, map snapshots, and signature lines. MENRO staff can attach them directly to municipal environmental status reports, budget presentations, or coastal project assessments.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Support Card -->
+<div class="card border-0 shadow-sm bg-mint">
+  <div class="card-body p-3 p-md-4">
+    <div class="d-flex align-items-center gap-3">
+      <i class="bi bi-info-circle-fill text-forest fs-3"></i>
+      <div>
+        <h6 class="fw-bold text-forest mb-1">Need Additional Assistance?</h6>
+        <div class="small text-secondary">
+          For technical inquiries, mapping data exports, or questions on integrating field survey GPS coordinates, please coordinate with the project team or the Municipal Environment and Natural Resources Office (MENRO) of Aringay, La Union.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

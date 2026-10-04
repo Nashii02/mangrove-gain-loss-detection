@@ -2,85 +2,283 @@
 {% block title %}Change Detection · Mangrove Monitor{% endblock %}
 {% block content %}
 
-<h4 class="fw-bold mb-1">Change Detection — Mangrove Gain &amp; Loss</h4>
-<p class="text-secondary">Consecutive-year pixel-by-pixel comparison of annual segmentation maps
-(transition categories per thesis Table 1)</p>
+<div class="d-flex flex-wrap justify-content-between align-items-end mb-1">
+  <h4 class="fw-bold mb-0">Mangrove Gain and Loss Detection</h4>
+  <span class="badge text-bg-light border">Guided Analysis · {% if DEMO_MODE %}Demo mode active{% else %}Live mode{% endif %}</span>
+</div>
+<p class="text-secondary">Follow 3 simple steps to compare satellite observations and see where mangroves have grown or disappeared.</p>
 
-<!-- Interval picker -->
-<div class="card border-0 shadow-sm mb-3"><div class="card-body py-3">
-  <div class="row g-2 align-items-end">
-    <div class="col-auto">
-      <label for="sel-y1" class="form-label small text-secondary mb-1">Earlier year</label>
-      <select id="sel-y1" class="form-select">
-        {% for y in years[:-1] %}
-          <option value="{{ y }}" {% if loop.last %}selected{% endif %}>{{ y }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    <div class="col-auto pb-1"><i class="bi bi-arrow-right fs-4 text-secondary"></i></div>
-    <div class="col-auto">
-      <label for="sel-y2" class="form-label small text-secondary mb-1">Later year</label>
-      <select id="sel-y2" class="form-select">
-        {% for y in years[1:] %}
-          <option value="{{ y }}" {% if loop.last %}selected{% endif %}>{{ y }}</option>
-        {% endfor %}
-      </select>
-    </div>
-    <div class="col-auto">
-      <button id="btn-load" class="btn btn-forest">
-        <i class="bi bi-play-fill"></i> Compare
-      </button>
-    </div>
-    <div class="col text-secondary small ps-3">
-      Only consecutive-year pairs are comparable (2019–2020 … 2023–2024).
+<!-- 3-Step Guided Wizard Card -->
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body p-3 p-md-4">
+    <div class="row g-3 align-items-center">
+      <!-- Step 1: Pick two years -->
+      <div class="col-lg-5">
+        <div class="d-flex align-items-center mb-2">
+          <span class="badge bg-forest text-white rounded-pill me-2 px-2 py-1">Step 1</span>
+          <span class="fw-bold">Pick two years to compare</span>
+        </div>
+        <div class="row g-2 align-items-center">
+          <div class="col">
+            <label for="sel-y1" class="form-label small text-muted mb-1">Earlier Year</label>
+            <select id="sel-y1" class="form-select form-select-lg fs-6">
+              <option value="2019" selected>2019</option>
+              <option value="2020">2020</option>
+              <option value="2021">2021</option>
+              <option value="2022">2022</option>
+              <option value="2023">2023</option>
+            </select>
+          </div>
+          <div class="col-auto pt-4 text-center">
+            <i class="bi bi-arrow-right fs-4 text-muted"></i>
+          </div>
+          <div class="col">
+            <label for="sel-y2" class="form-label small text-muted mb-1">Later Year</label>
+            <select id="sel-y2" class="form-select form-select-lg fs-6">
+              <!-- Dynamically populated with allowed years -->
+            </select>
+          </div>
+        </div>
+        <div class="small text-muted mt-2">
+          <i class="bi bi-info-circle me-1"></i>Select an earlier year (2019–2023) and later year (2020–2024).
+        </div>
+      </div>
+
+      <!-- Step 2: Run Analysis -->
+      <div class="col-lg-3 text-center border-start border-end px-lg-3 py-2">
+        <div class="d-flex align-items-center justify-content-center mb-2">
+          <span class="badge bg-forest text-white rounded-pill me-2 px-2 py-1">Step 2</span>
+          <span class="fw-bold">Run analysis</span>
+        </div>
+        <button id="btn-load" class="btn btn-forest btn-lg w-100 py-2 fs-6 shadow-sm">
+          <i class="bi bi-play-circle-fill me-1"></i> Detect Changes
+        </button>
+        <div class="small text-muted mt-2">Compares satellite images</div>
+      </div>
+
+      <!-- Step 3: See results status -->
+      <div class="col-lg-4 ps-lg-3">
+        <div class="d-flex align-items-center mb-2">
+          <span class="badge bg-forest text-white rounded-pill me-2 px-2 py-1">Step 3</span>
+          <span class="fw-bold">See results</span>
+        </div>
+        <div id="status-box" class="p-3 rounded bg-light border">
+          <div class="d-flex align-items-center text-secondary small" id="status-text">
+            <i class="bi bi-check-circle-fill text-success me-2 fs-5"></i>
+            <span>Ready. Click <strong>Detect Changes</strong> to inspect results.</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-</div></div>
+</div>
+
+<!-- Friendly Alert Box for Progress & Errors -->
+<div id="alert-container" class="mb-3 d-none">
+  <div id="alert-box" class="alert d-flex align-items-center mb-0" role="alert">
+    <div id="alert-icon" class="me-2 fs-5"></div>
+    <div id="alert-message" class="flex-grow-1"></div>
+    <button type="button" class="btn-close ms-2" onclick="document.getElementById('alert-container').classList.add('d-none');" aria-label="Close"></button>
+  </div>
+</div>
 
 <!-- Summary cards -->
-<div class="row g-3 mb-3">
-  <div class="col-md-3">
-    <div class="card border-0 shadow-sm bg-gain h-100"><div class="card-body">
-      <div class="kicker">Mapped Mangrove Gain</div>
-      <div class="fs-3 fw-bold text-forest" id="card-gain">—</div>
-      <div class="small text-secondary">non-mangrove → mangrove</div>
-    </div></div>
+<div class="row g-3 mb-4">
+  <!-- Mapped Gain -->
+  <div class="col-6 col-lg-3">
+    <div class="card border-0 shadow-sm bg-gain h-100">
+      <div class="card-body d-flex flex-column justify-content-between">
+        <div>
+          <div class="d-flex align-items-center justify-content-between mb-1">
+            <span class="kicker text-forest">Mapped Gain</span>
+            <span class="badge bg-success-subtle text-success border border-success-subtle"><i class="bi bi-plus-circle-fill me-1"></i>▲ Gain</span>
+          </div>
+          <div class="fs-3 fw-bold text-forest" id="card-gain">—</div>
+          <div class="small text-secondary">Newly grown or appeared mangroves.</div>
+        </div>
+        <div class="small text-muted mt-2 pt-2 border-top" id="gain-compare">
+          <i class="bi bi-bounding-box me-1"></i>Calculating size comparison…
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="col-md-3">
-    <div class="card border-0 shadow-sm bg-loss h-100"><div class="card-body">
-      <div class="kicker">Mapped Mangrove Loss</div>
-      <div class="fs-3 fw-bold text-loss" id="card-loss">—</div>
-      <div class="small text-secondary">mangrove → non-mangrove</div>
-    </div></div>
+
+  <!-- Mapped Loss -->
+  <div class="col-6 col-lg-3">
+    <div class="card border-0 shadow-sm bg-loss h-100">
+      <div class="card-body d-flex flex-column justify-content-between">
+        <div>
+          <div class="d-flex align-items-center justify-content-between mb-1">
+            <span class="kicker text-loss">Mapped Loss</span>
+            <span class="badge bg-danger-subtle text-danger border border-danger-subtle"><i class="bi bi-dash-circle-fill me-1"></i>▼ Loss</span>
+          </div>
+          <div class="fs-3 fw-bold text-loss" id="card-loss">—</div>
+          <div class="small text-secondary">Disappeared or were removed.</div>
+        </div>
+        <div class="small text-muted mt-2 pt-2 border-top" id="loss-compare">
+          <i class="bi bi-bounding-box me-1"></i>Calculating size comparison…
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="col-md-3">
-    <div class="card border-0 shadow-sm h-100"><div class="card-body">
-      <div class="kicker">Stable Mangrove</div>
-      <div class="fs-3 fw-bold" id="card-stable">—</div>
-      <div class="small text-secondary">mangrove in both years</div>
-    </div></div>
+
+  <!-- Stable Mangrove -->
+  <div class="col-6 col-lg-3">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body d-flex flex-column justify-content-between">
+        <div>
+          <div class="d-flex align-items-center justify-content-between mb-1">
+            <span class="kicker text-forest">Stable Mangrove</span>
+            <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle"><i class="bi bi-shield-check me-1"></i>● Stable</span>
+          </div>
+          <div class="fs-3 fw-bold text-dark" id="card-stable">—</div>
+          <div class="small text-secondary">Still there in both years.</div>
+        </div>
+        <div class="small text-muted mt-2 pt-2 border-top" id="stable-compare">
+          <i class="bi bi-bounding-box me-1"></i>Calculating size comparison…
+        </div>
+      </div>
+    </div>
   </div>
-  <div class="col-md-3">
-    <div class="card border-0 shadow-sm h-100"><div class="card-body">
-      <div class="kicker">Net Change</div>
-      <div class="fs-3 fw-bold" id="card-net">—</div>
-      <div class="small text-secondary">gain − loss (hectares)</div>
-    </div></div>
+
+  <!-- Net Mapped Change -->
+  <div class="col-6 col-lg-3">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body d-flex flex-column justify-content-between">
+        <div>
+          <div class="d-flex align-items-center justify-content-between mb-1">
+            <span class="kicker">Net Mapped Change</span>
+            <span class="badge bg-light text-dark border"><i class="bi bi-scale me-1"></i>⚖️ Net</span>
+          </div>
+          <div class="fs-3 fw-bold" id="card-net">—</div>
+          <div class="small text-secondary">Total gain minus loss across the period.</div>
+        </div>
+        <div class="small text-muted mt-2 pt-2 border-top" id="net-compare">
+          <i class="bi bi-info-circle me-1"></i>Overall forest change.
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
 <!-- Map -->
-<div class="card border-0 shadow-sm"><div class="card-body p-2">
-  <div id="map-change" style="height:520px"></div>
-  <div class="d-flex flex-wrap gap-4 px-3 pt-2 pb-1 small align-items-center">
-    <span><span class="swatch" style="background:#52b788"></span> Mapped gain</span>
-    <span><span class="swatch" style="background:#ba181b"></span> Mapped loss</span>
-    <span class="text-secondary">
-      <i class="bi bi-shield-exclamation me-1"></i>
-      Detected transitions are probable land-cover changes, not confirmed ecological causes.
-    </span>
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center">
+    <div>
+      <h6 class="fw-bold mb-0"><i class="bi bi-map me-1"></i>Mangrove Change Map — Barangay Dulao</h6>
+      <small class="text-secondary" id="map-subtitle">Displaying comparison map</small>
+    </div>
+    <span class="badge text-bg-light border">Leaflet · OpenStreetMap</span>
   </div>
-</div></div>
+  <div class="card-body p-2">
+    <div id="map-change" style="height:520px; border-radius:0.5rem;"></div>
+    <div class="d-flex flex-wrap gap-4 px-3 pt-3 pb-2 small align-items-center border-top mt-2">
+      <span class="fw-semibold">Map Legend:</span>
+      <span class="d-flex align-items-center">
+        <span class="swatch me-1" style="background:#52b788; border:2px solid #1b4332;"></span>
+        <strong>▲ Mapped Gain</strong> <small class="text-secondary ms-1">(solid green · new growth)</small>
+      </span>
+      <span class="d-flex align-items-center">
+        <span class="swatch me-1" style="background:#ba181b; border:2px dashed #780016;"></span>
+        <strong>▼ Mapped Loss</strong> <small class="text-secondary ms-1">(dashed red · disappeared)</small>
+      </span>
+      <span class="d-flex align-items-center">
+        <span class="swatch me-1" style="background:#2d6a4f; border:1px solid #0f2318;"></span>
+        <strong>● Stable Mangrove</strong> <small class="text-secondary ms-1">(solid dark green · retained)</small>
+      </span>
+      <span class="d-flex align-items-center">
+        <span class="swatch me-1" style="background:#dee2e6; border:1px dashed #adb5bd;"></span>
+        <strong>◻ Stable Non-mangrove</strong> <small class="text-secondary ms-1">(dashed grey · water/mudflats)</small>
+      </span>
+    </div>
+    <div class="small text-secondary px-3 pb-2">
+      <i class="bi bi-info-circle me-1"></i>
+      Mapped gain and loss indicate observed vegetation shifts in satellite photos. Ground verification helps confirm specific local causes.
+    </div>
+  </div>
+</div>
+
+<!-- Detailed Results Breakdown Table -->
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-header bg-white py-3">
+    <div class="d-flex justify-content-between align-items-center">
+      <h6 class="fw-bold mb-0"><i class="bi bi-table me-1"></i>Results Summary &amp; Plain-Language Meaning</h6>
+      <span class="badge text-bg-light border" id="table-interval-badge">2023 → 2024</span>
+    </div>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0" id="tbl-detection-results">
+      <thead class="table-light small text-uppercase">
+        <tr>
+          <th>Category</th>
+          <th class="text-end">Mapped Area</th>
+          <th class="text-end">Everyday Scale</th>
+          <th>What This Means</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <div class="d-flex align-items-center">
+              <span class="swatch me-2" style="background:#52b788; border:2px solid #1b4332;"></span>
+              <strong>▲ Mapped Gain</strong>
+            </div>
+          </td>
+          <td class="text-end fw-bold text-success" id="tbl-gain-area">—</td>
+          <td class="text-end text-muted small" id="tbl-gain-scale">—</td>
+          <td class="small" id="tbl-gain-desc">Newly grown or appeared mangrove trees since earlier survey.</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="d-flex align-items-center">
+              <span class="swatch me-2" style="background:#ba181b; border:2px dashed #780016;"></span>
+              <strong>▼ Mapped Loss</strong>
+            </div>
+          </td>
+          <td class="text-end fw-bold text-danger" id="tbl-loss-area">—</td>
+          <td class="text-end text-muted small" id="tbl-loss-scale">—</td>
+          <td class="small" id="tbl-loss-desc">Mangrove trees disappeared or were removed. Priority for inspection.</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="d-flex align-items-center">
+              <span class="swatch me-2" style="background:#2d6a4f; border:1px solid #0f2318;"></span>
+              <strong>● Stable Mangrove</strong>
+            </div>
+          </td>
+          <td class="text-end fw-bold" id="tbl-stable-area">—</td>
+          <td class="text-end text-muted small" id="tbl-stable-scale">—</td>
+          <td class="small" id="tbl-stable-desc">Mangrove canopy remained intact across both observation years.</td>
+        </tr>
+        <tr>
+          <td>
+            <div class="d-flex align-items-center">
+              <span class="swatch me-2" style="background:#dee2e6; border:1px dashed #adb5bd;"></span>
+              <strong>◻ Stable Non-mangrove</strong>
+            </div>
+          </td>
+          <td class="text-end fw-bold text-secondary" id="tbl-nonmangrove-area">—</td>
+          <td class="text-end text-muted small" id="tbl-nonmangrove-scale">—</td>
+          <td class="small" id="tbl-nonmangrove-desc">Open water, mudflats, sand, and non-mangrove coastline that remained non-mangrove.</td>
+        </tr>
+        <tr class="table-light">
+          <td>
+            <div class="d-flex align-items-center">
+              <span class="me-2 fs-6">⚖️</span>
+              <strong>Net Mapped Change</strong>
+            </div>
+          </td>
+          <td class="text-end fw-bold" id="tbl-net-area">—</td>
+          <td class="text-end text-muted small" id="tbl-net-scale">—</td>
+          <td class="small fw-semibold" id="tbl-net-desc">Overall change balance between gained and lost mangrove area.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card-footer bg-white text-muted small py-2">
+    <i class="bi bi-shield-check me-1"></i>All figures derived from 10-meter Sentinel-2 satellite imagery (1 pixel = 100 square meters = 0.01 hectare).
+  </div>
+</div>
 {% endblock %}
 
 {% block scripts %}

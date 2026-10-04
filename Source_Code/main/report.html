@@ -12,7 +12,7 @@ prepared for presentation to the Aringay MENRO.</p>
       <h6 class="fw-bold"><i class="bi bi-file-earmark-check me-1"></i>Report Contents</h6>
       <div class="form-check py-1">
         <input class="form-check-input" type="checkbox" checked disabled id="c1">
-        <label class="form-check-label" for="c1">Annual mangrove cover (ha), 2019–2024</label>
+        <label class="form-check-label" for="c1">Annual mangrove cover (hectares), 2019–2024</label>
       </div>
       <div class="form-check py-1">
         <input class="form-check-input" type="checkbox" checked disabled id="c2">
@@ -24,7 +24,7 @@ prepared for presentation to the Aringay MENRO.</p>
       </div>
       <div class="form-check py-1">
         <input class="form-check-input" type="checkbox" checked disabled id="c4">
-        <label class="form-check-label" for="c4">Model evaluation summary (F1, IoU, mAP)</label>
+        <label class="form-check-label" for="c4">Satellite analysis accuracy and validation summary</label>
       </div>
       <hr>
       <button id="btn-pdf" class="btn btn-forest w-100">
@@ -63,10 +63,10 @@ document.getElementById('btn-pdf').addEventListener('click', async () => {
     if (!r.ok) throw new Error('Report generation failed (' + r.status + ')');
     const blob = await r.blob();
     const a = Object.assign(document.createElement('a'),
-      { href: URL.createObjectURL(blob), download: 'mangrove_report.pdf' });
+      { href: URL.createObjectURL(blob), download: 'Aringay_MENRO_Mangrove_Report.pdf' });
     a.click();
     URL.revokeObjectURL(a.href);
-    s.innerHTML = '<span class="text-success"><i class="bi bi-check-circle me-1"></i>Downloaded mangrove_report.pdf</span>';
+    s.innerHTML = '<span class="text-success"><i class="bi bi-check-circle me-1"></i>Downloaded Aringay_MENRO_Mangrove_Report.pdf</span>';
   } catch (e) {
     s.innerHTML = `<span class="text-danger"><i class="bi bi-exclamation-triangle me-1"></i>${e.message}</span>`;
   } finally {

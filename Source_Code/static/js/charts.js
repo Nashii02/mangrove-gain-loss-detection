@@ -20,7 +20,7 @@
     const setTot = (id, v, positive) => {
       const el = document.getElementById(id);
       if (!el) return;
-      el.textContent = (positive ? '+' : '−') + fmt(Math.abs(v)) + ' ha';
+      el.textContent = (positive ? '+' : '−') + fmt(Math.abs(v)) + ' hectares';
       el.classList.toggle('text-forest', positive);
       el.classList.toggle('text-loss', !positive);
     };
@@ -34,7 +34,7 @@
       data: {
         labels: yr.map(d => d.year),
         datasets: [{
-          label: 'Mangrove cover (ha)',
+          label: 'Mangrove cover (hectares)',
           data: yr.map(d => d.area_ha),
           backgroundColor: COLORS.mangrove,
           borderRadius: 6
@@ -69,13 +69,20 @@
     const tb = document.querySelector('#tbl-stats tbody');
     tb.innerHTML = iv.map(d => {
       const net = (d.gain_ha ?? 0) - (d.loss_ha ?? 0);
+      const fields = Math.round(Math.abs(net) * 1.4);
+      const desc = net > 0
+        ? `Mangrove forest expanded by ${fmt(net)} hectares (about ${fields} football fields).`
+        : net < 0
+          ? `Mangrove forest shrank by ${fmt(Math.abs(net))} hectares (about ${fields} football fields).`
+          : 'Mangrove area remained steady with no net change.';
       return `<tr>
         <td class="fw-semibold">${d.interval}</td>
-        <td class="text-end text-success">+${fmt(d.gain_ha)}</td>
-        <td class="text-end text-danger">−${fmt(d.loss_ha)}</td>
+        <td class="text-end text-success">+${fmt(d.gain_ha)} hectares</td>
+        <td class="text-end text-danger">−${fmt(d.loss_ha)} hectares</td>
         <td class="text-end fw-semibold ${net >= 0 ? 'text-success' : 'text-danger'}">
-          ${net >= 0 ? '+' : '−'}${fmt(Math.abs(net))}
+          ${net >= 0 ? '+' : '−'}${fmt(Math.abs(net))} hectares
         </td>
+        <td class="small text-secondary">${desc}</td>
       </tr>`;
     }).join('');
 

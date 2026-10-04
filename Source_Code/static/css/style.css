@@ -13,7 +13,7 @@
 }
 
 /* ---- Base ---- */
-body { background:#f6faf7; color:var(--ink); }
+body { background:#f6faf7; color:var(--ink); font-size:16px; }
 h4   { letter-spacing:-.01em; }
 
 /* ---- Navbar / banners ---- */

@@ -16,8 +16,46 @@ const fmt = n => (n == null ? '—' : Number(n).toLocaleString(undefined,
 function styleByClass() {
   return f => {
     const c = f.properties.class;
-    const col = c === 'gain' ? COLORS.gain : c === 'loss' ? COLORS.loss : COLORS.mangrove;
-    return { color: col, weight: 1.5, fillColor: col, fillOpacity: 0.45 };
+    if (c === 'gain') {
+      return {
+        color: '#1b4332',
+        weight: 2,
+        fillColor: COLORS.gain,
+        fillOpacity: 0.5,
+        dashArray: null
+      };
+    } else if (c === 'loss') {
+      return {
+        color: '#780016',
+        weight: 2.5,
+        fillColor: COLORS.loss,
+        fillOpacity: 0.55,
+        dashArray: '6, 6'
+      };
+    } else if (c === 'stable') {
+      return {
+        color: '#1b4332',
+        weight: 1.5,
+        fillColor: COLORS.stable,
+        fillOpacity: 0.35,
+        dashArray: null
+      };
+    } else if (c === 'stable_non_mangrove' || c === 'non_mangrove') {
+      return {
+        color: '#adb5bd',
+        weight: 1.5,
+        fillColor: '#dee2e6',
+        fillOpacity: 0.18,
+        dashArray: '3, 3'
+      };
+    }
+    return {
+      color: COLORS.mangrove,
+      weight: 1.5,
+      fillColor: COLORS.mangrove,
+      fillOpacity: 0.4,
+      dashArray: null
+    };
   };
 }
 

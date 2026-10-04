@@ -4,10 +4,10 @@
 
 <div class="d-flex flex-wrap justify-content-between align-items-end mb-1">
   <h4 class="fw-bold mb-0">Area Statistics</h4>
-  <span class="badge text-bg-light border">Area<sub>ha</sub> = N / 100 · 1 px = 100 m²</span>
+  <span class="badge text-bg-light border">All areas reported in hectares</span>
 </div>
 <p class="text-secondary">Mangrove-cover area, mapped gain, and mapped loss in hectares
-(10 m grid — one fully covered pixel represents 100 square meters).</p>
+(measured on a 10-meter satellite grid where each pixel represents 100 square meters).</p>
 
 <!-- Overall summary -->
 <div class="row g-3 mb-4">
@@ -35,13 +35,13 @@
 <div class="row g-3">
   <div class="col-lg-6">
     <div class="card border-0 shadow-sm h-100"><div class="card-body">
-      <h6 class="fw-bold"><i class="bi bi-bar-chart me-1"></i>Mangrove Cover per Year (ha)</h6>
+      <h6 class="fw-bold"><i class="bi bi-bar-chart me-1"></i>Mangrove Cover per Year (hectares)</h6>
       <canvas id="ch-area" height="230"></canvas>
     </div></div>
   </div>
   <div class="col-lg-6">
     <div class="card border-0 shadow-sm h-100"><div class="card-body">
-      <h6 class="fw-bold"><i class="bi bi-arrow-left-right me-1"></i>Gain vs. Loss per Consecutive Interval (ha)</h6>
+      <h6 class="fw-bold"><i class="bi bi-arrow-left-right me-1"></i>Gain vs. Loss per Consecutive Interval (hectares)</h6>
       <canvas id="ch-change" height="230"></canvas>
     </div></div>
   </div>
@@ -54,19 +54,19 @@
           <thead class="table-light">
             <tr>
               <th>Interval</th>
-              <th class="text-end">Gain (ha)</th>
-              <th class="text-end">Loss (ha)</th>
-              <th class="text-end">Net change (ha)</th>
+              <th class="text-end">Mapped Gain</th>
+              <th class="text-end">Mapped Loss</th>
+              <th class="text-end">Net Change</th>
+              <th>What This Means</th>
             </tr>
           </thead>
           <tbody>
-            <tr><td colspan="4" class="text-center text-secondary py-3">loading…</td></tr>
+            <tr><td colspan="5" class="text-center text-secondary py-3">loading…</td></tr>
           </tbody>
         </table>
       </div>
       <div class="small text-secondary mt-2">
-        Net change = gain − loss. Values are <em>mapped</em> areas derived from pixel
-        counts of the annual segmentation maps.
+        Net change = gain − loss. All values are <em>mapped</em> areas derived from 10-meter Sentinel-2 satellite imagery.
       </div>
     </div></div>
   </div>

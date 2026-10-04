@@ -10,30 +10,30 @@ pixel-level metrics, mangrove class treated as the positive class.</p>
 <div class="row g-3 mb-4">
   <div class="col-md-3">
     <div class="card border-0 shadow-sm bg-mint h-100"><div class="card-body">
-      <div class="kicker">F1-score</div>
+      <div class="kicker">Balance Score (F1-score)</div>
       <div class="fs-3 fw-bold text-forest" id="m-f1">—</div>
-      <div class="small text-secondary font-monospace">2TP / (2TP + FP + FN)</div>
+      <div class="small text-secondary">Balanced accuracy between true detections and missed trees</div>
     </div></div>
   </div>
   <div class="col-md-3">
     <div class="card border-0 shadow-sm bg-mint h-100"><div class="card-body">
-      <div class="kicker">IoU</div>
+      <div class="kicker">Boundary Overlap (Intersection over Union)</div>
       <div class="fs-3 fw-bold text-forest" id="m-iou">—</div>
-      <div class="small text-secondary font-monospace">TP / (TP + FP + FN)</div>
+      <div class="small text-secondary">Spatial overlap match between model and ground reference</div>
     </div></div>
   </div>
   <div class="col-md-3">
     <div class="card border-0 shadow-sm bg-mint h-100"><div class="card-body">
-      <div class="kicker">mAP <span class="text-secondary">(AP, mangrove)</span></div>
+      <div class="kicker">Detection Accuracy (Mean Average Precision)</div>
       <div class="fs-3 fw-bold text-forest" id="m-map">—</div>
-      <div class="small text-secondary">area under the precision–recall curve</div>
+      <div class="small text-secondary">Overall detection precision across different confidence levels</div>
     </div></div>
   </div>
   <div class="col-md-3">
     <div class="card border-0 shadow-sm h-100"><div class="card-body">
       <div class="kicker">Operating Threshold <span class="text-secondary">(locked)</span></div>
       <div class="fs-3 fw-bold" id="m-th">—</div>
-      <div class="small text-secondary">maximizes validation IoU</div>
+      <div class="small text-secondary">Decision cutoff maximizing spatial boundary overlap</div>
     </div></div>
   </div>
 </div>
@@ -44,9 +44,8 @@ pixel-level metrics, mangrove class treated as the positive class.</p>
     <div class="card border-0 shadow-sm h-100"><div class="card-body">
       <h6 class="fw-bold"><i class="bi bi-graph-up me-1"></i>Precision–Recall Curve</h6>
       <p class="small text-secondary mb-2">
-        Classification threshold swept from 0.05 to 0.95 in increments of 0.05;
-        each threshold yields one precision–recall pair. With a single positive
-        class (mangrove), mAP equals the AP of the mangrove class.
+        Evaluates detection precision across varying sensitivity thresholds. For the mangrove
+        vegetation class, Mean Average Precision represents the overall detection accuracy.
       </p>
       <canvas id="ch-pr" height="260"></canvas>
     </div></div>
