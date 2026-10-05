@@ -130,6 +130,7 @@
 {% endblock %}
 
 {% block scripts %}
+<script id="study-area-geojson" type="application/json">{{ study.geojson | tojson }}</script>
 <script>
 (async () => {
   // Initialize tooltips
@@ -157,13 +158,18 @@
     { maxZoom: 19, attribution:'&copy; OpenStreetMap contributors' }).addTo(map);
   L.control.scale({ imperial:false }).addTo(map);
 
-  const roiGeoJson = {{ study.geojson | tojson }};
-  const roiLayer = L.geoJSON(roiGeoJson, {
-    style: { color: '#1B4332', weight: 2.5, fillOpacity: 0.12, dashArray: '4, 4' }
-  }).addTo(map);
-  roiLayer.bindPopup('<strong>Brgy. Dulao Shoreline</strong><br>Official Study Area Boundary (2019–2024)<br><small>Aringay, La Union</small>');
-  if (roiLayer.getBounds && roiLayer.getBounds().isValid()) {
-    map.fitBounds(roiLayer.getBounds(), { padding: [20, 20] });
+  const roiGeoJsonEl = document.getElementById('study-area-geojson');
+  const roiGeoJson = roiGeoJsonEl ? JSON.parse(roiGeoJsonEl.textContent) : null;
+  if (roiGeoJson) {
+    const roiLayer = L.geoJSON(roiGeoJson, {
+      style: { color: '#1B4332', weight: 2.5, fillOpacity: 0.12, dashArray: '4, 4' }
+    }).addTo(map);
+    roiLayer.bindPopup('<strong>Brgy. Dulao Shoreline</strong><br>Official Study Area Boundary (2019–2024)<br><small>Aringay, La Union</small>');
+    if (roiLayer.getBounds && roiLayer.getBounds().isValid()) {
+      map.fitBounds(roiLayer.getBounds(), { padding: [20, 20] });
+    } else {
+      map.setView([16.376, 120.332], 14);
+    }
   } else {
     map.setView([16.376, 120.332], 14);
   }
